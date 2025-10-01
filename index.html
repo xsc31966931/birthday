@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>珑珑的生日贺卡</title>
+  <title>珑珑生日快乐</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   
@@ -147,7 +147,7 @@
   </div>
 
   <!-- 生日快乐歌音频 -->
-  <audio id="birthdaySong" loop autoplay>
+  <audio id="birthdaySong" loop autoplay controls>
     <source src="M500003dgktA3TUgyG.mp3" type="audio/mpeg">
     您的浏览器不支持音频播放。
   </audio>
@@ -155,20 +155,29 @@
   <script>
     // 音乐自动播放功能
     const audio = document.getElementById('birthdaySong');
-    window.addEventListener('DOMContentLoaded', () => {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.log('音乐自动播放失败，等待用户交互。');
-          // 如果自动播放失败，则在用户第一次点击页面时播放
-          const playOnClick = () => {
-            audio.play();
-            document.body.removeEventListener('click', playOnClick);
-          }
-          document.body.addEventListener('click', playOnClick);
-        });
-      }
-    });
+    
+    // 立即尝试播放
+    const tryPlay = () => {
+      audio.play().catch(() => {
+        // 如果自动播放失败，在任何用户交互后播放
+        const playOnInteraction = () => {
+          audio.play();
+          document.removeEventListener('click', playOnInteraction);
+          document.removeEventListener('keydown', playOnInteraction);
+          document.removeEventListener('touchstart', playOnInteraction);
+        };
+        document.addEventListener('click', playOnInteraction);
+        document.addEventListener('keydown', playOnInteraction);
+        document.addEventListener('touchstart', playOnInteraction);
+      });
+    };
+    
+    // 页面加载完成后立即播放
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tryPlay);
+    } else {
+      tryPlay();
+    }
     
     // 添加音频加载事件监听
     audio.addEventListener('canplaythrough', () => {
